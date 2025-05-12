@@ -1,0 +1,7 @@
+{
+    "name": "Schedule",
+    "tree": {
+        "$className": "DataModel",
+        "$path": "src"
+    }
+}
