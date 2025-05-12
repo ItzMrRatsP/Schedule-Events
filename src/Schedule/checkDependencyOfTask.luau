@@ -6,10 +6,15 @@ return function(self, taskId): boolean
 		return false
 	end
 
-	if typeof(mainTask._dependency) == "string" then
-		return self._tasks[mainTask._dependency]._completed
-	elseif typeof(mainTask._dependency) == "table" then
-		local dependencyNumber = #mainTask._dependency
+	local dependency = mainTask._dependency
+	if not dependency then
+		return false
+	end
+
+	if typeof(dependency) == "string" then
+		return self._tasks[dependency]._completed
+	elseif typeof(dependency) == "table" then
+		local dependencyNumber = #dependency
 		local passedTest = 0
 
 		for id, task: types.taskData in self._tasks do

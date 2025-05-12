@@ -46,51 +46,26 @@ function Schedule:addTask(task, runAfterTasks)
 	return taskId
 end
 
-local function createThread()
-	local threadTasks = {}
-	local thread = task.spawn(function()
-		while true do
-			if #threadTasks < 0 then
-				task.wait()
-				continue
-			end
-
-			local run = table.remove(threadTasks, 1)
-			run()
-		end
-	end)
-
-	return {
-		thread = thread,
-		cancel = function()
-			task.cancel(thread)
-		end,
-		threadTasks = threadTasks,
-	}
-end
-
 function Schedule:boot()
-	local thread = createThread()
 	self._queue = dictToArray(self._tasks)
 
 	while #self._queue > 0 do
-		local task: types.taskData = table.remove(self._queue, 1) :: types.taskData
-		if checkDependencyOfTask(task._id) then
+		local queuedTask = table.remove(self._queue, 1) :: types.taskData
+		if not checkDependencyOfTask(queuedTask._id) then
 			--- @TODO: Check if all tasks are completed
-			table.insert(self._queue, task)
+			table.insert(self._queue, queuedTask)
 			continue
 		end
 
 		--- @TODO: Check if task is completed, If it is then we can just pass by
-		if task._completed then
+		if queuedTask._completed then
 			continue
 		end
 
-		--- @Objective; Run the task
-		table.insert(thread.threadTasks, task.run)
-	end
+		--- @Objective; Run the task in some sort of thread
 
-	thread.cancel()
+		queuedTask._completed = true
+	end
 end
 
 function Schedule:cancelTask() end
