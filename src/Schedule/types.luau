@@ -12,9 +12,9 @@ export type Schedule = {
 	_queue: { taskData },
 	_tasks: { [string]: taskData },
 
-	addTask: (task: task, runAfterTasks: { string } | string) -> string?,
-	cancelTask: (taskId: string) -> boolean,
-	boot: () -> boolean, -- Completed or not
+	addTask: (self: Schedule, task: task, runAfterTasks: { string } | string) -> string?,
+	cancelTask: (self: Schedule, taskId: string) -> boolean,
+	boot: (self: Schedule) -> boolean, -- Completed or not
 }
 
 return {}

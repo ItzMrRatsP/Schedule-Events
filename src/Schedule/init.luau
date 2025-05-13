@@ -49,9 +49,11 @@ function Schedule:boot()
 
 	while #self._queue > 0 do
 		local queuedTask = table.remove(self._queue, 1) :: types.taskData
-		if not checkDependencyOfTask(self, queuedTask._id) then
+
+		if not checkDependencyOfTask(self, queuedTask) then
 			--- @TODO: Check if all tasks are completed
 			table.insert(self._queue, queuedTask)
+			task.wait()
 			continue
 		end
 
@@ -59,11 +61,16 @@ function Schedule:boot()
 		table.insert(
 			promises,
 			Promise.try(function()
-				return queuedTask.run()
+				return queuedTask.run
 			end)
-				:andThen(function()
+				:andThen(function(f)
 					-- Task is completed, We can set it true
+					if not f then
+						return
+					end
+
 					queuedTask._completed = true
+					f()
 				end)
 				:catch(warn)
 		)

@@ -5,8 +5,6 @@ return function(self, runningTask): boolean
 		return false
 	end
 
-	print(runningTask._dependency)
-
 	local dependency = runningTask._dependency
 	if not dependency then
 		return true
