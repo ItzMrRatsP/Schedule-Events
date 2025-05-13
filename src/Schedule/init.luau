@@ -1,21 +1,18 @@
 local HttpService = game:GetService("HttpService")
 
 -- The main module for schedule
+local Promise = require(script.Packages.Promise)
 local checkDependencyOfTask = require(script.checkDependencyOfTask)
 local types = require(script.types)
 local dictToArray = require(script.dictToArray)
 
 local Schedule = {}
-Schedule.tasks = {} :: {
-	[string]: types.taskData,
-}
 
 function Schedule.new()
 	local self = {}
 
 	-- methods
 	self.addTask = Schedule.addTask
-	self.cancelTask = Schedule.cancelTask
 	self.boot = Schedule.boot
 
 	-- private var
@@ -27,8 +24,8 @@ function Schedule.new()
 end
 
 --- @TODO: Add tasks in the list, Check if tasks has any other task to run before it, If that is not finished then it won't run.
-function Schedule:addTask(task, runAfterTasks)
-	if typeof(task) == "function" then
+function Schedule:addTask(scheduledTask, runAfterTasks)
+	if typeof(scheduledTask) ~= "function" then
 		warn("The task must be a function, Please try to provide a correct task to run.")
 		return
 	end
@@ -40,34 +37,41 @@ function Schedule:addTask(task, runAfterTasks)
 		_id = taskId,
 		_dependency = runAfterTasks,
 
-		run = task,
+		run = scheduledTask,
 	} :: types.taskData
 
 	return taskId
 end
 
 function Schedule:boot()
+	local promises = {}
 	self._queue = dictToArray(self._tasks)
 
 	while #self._queue > 0 do
 		local queuedTask = table.remove(self._queue, 1) :: types.taskData
-		if not checkDependencyOfTask(queuedTask._id) then
+		if not checkDependencyOfTask(self, queuedTask._id) then
 			--- @TODO: Check if all tasks are completed
 			table.insert(self._queue, queuedTask)
 			continue
 		end
 
-		--- @TODO: Check if task is completed, If it is then we can just pass by
-		if queuedTask._completed then
-			continue
-		end
-
-		--- @Objective; Run the task in some sort of thread
-
-		queuedTask._completed = true
+		--- @Objective; Run the task in the thread
+		table.insert(
+			promises,
+			Promise.try(function()
+				return queuedTask.run()
+			end)
+				:andThen(function()
+					-- Task is completed, We can set it true
+					queuedTask._completed = true
+				end)
+				:catch(warn)
+		)
 	end
+
+	Promise.allSettled(promises):andThen(function()
+		print("All scheduled events are running now!")
+	end)
 end
 
-function Schedule:cancelTask() end
-
-return Schedule.new :: () -> types.Schedule
+return Schedule.new() :: types.Schedule

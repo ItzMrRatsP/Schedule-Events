@@ -3,6 +3,7 @@ export type taskData = {
 	_completed: boolean,
 	_id: string,
 	_dependency: { string },
+	_signal: any,
 
 	run: task,
 }

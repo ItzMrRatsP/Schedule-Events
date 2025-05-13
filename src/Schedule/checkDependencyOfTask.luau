@@ -1,14 +1,15 @@
 local types = require(script.Parent.types)
 
-return function(self, taskId): boolean
-	local mainTask = self._tasks[taskId] :: types.taskData?
-	if not mainTask then
+return function(self, runningTask): boolean
+	if not runningTask then
 		return false
 	end
 
-	local dependency = mainTask._dependency
+	print(runningTask._dependency)
+
+	local dependency = runningTask._dependency
 	if not dependency then
-		return false
+		return true
 	end
 
 	if typeof(dependency) == "string" then
@@ -18,7 +19,7 @@ return function(self, taskId): boolean
 		local passedTest = 0
 
 		for id, task: types.taskData in self._tasks do
-			if id == mainTask._id then
+			if id == runningTask._id then
 				continue
 			end
 

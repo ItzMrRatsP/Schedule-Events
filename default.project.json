@@ -2,6 +2,14 @@
     "name": "Schedule",
     "tree": {
         "$className": "DataModel",
-        "$path": "src"
+        "ReplicatedStorage": {
+            "$path": "src",
+            "Schedule": {
+                "$path": "src/Schedule",
+                "Packages": {
+                    "$path": "Packages"
+                }
+            }
+        }
     }
 }
