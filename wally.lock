@@ -3,11 +3,6 @@
 registry = "test"
 
 [[package]]
-name = "evaera/promise"
-version = "4.0.0"
-dependencies = []
-
-[[package]]
 name = "itzmrratsp/genericstatemachine"
 version = "0.2.1"
-dependencies = [["Promise", "evaera/promise@4.0.0"]]
+dependencies = []

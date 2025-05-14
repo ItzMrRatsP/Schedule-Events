@@ -10,24 +10,18 @@ return function(self, runningTask): boolean
 		return true
 	end
 
-	if typeof(dependency) == "string" then
-		return self._tasks[dependency]._completed
-	elseif typeof(dependency) == "table" then
-		local dependencyNumber = #dependency
-		local passedTest = 0
+	local dependencyNumber = #dependency
+	local passedTest = 0
 
-		for id, task: types.taskData in self._tasks do
-			if id == runningTask._id then
-				continue
-			end
-
-			if task._completed then
-				passedTest += 1
-			end
+	for id, task: types.taskData in self._tasks do
+		if id == runningTask._id then
+			continue
 		end
 
-		return passedTest >= dependencyNumber
+		if task._completed then
+			passedTest += 1
+		end
 	end
 
-	return false
+	return passedTest >= dependencyNumber
 end

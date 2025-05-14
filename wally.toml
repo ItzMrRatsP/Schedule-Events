@@ -14,5 +14,3 @@ exclude = [
 ]
 
 [dependencies]
-#empty dependencies
-Promise = "evaera/promise@4.0.0"
